@@ -44,7 +44,7 @@ c############### Main.F ################################################
           print*,"born = ", amp1, amp2, amp1/amp2
           
           ! test the spin correlated amplitude
-          call bornmunu_ubaru_gamg(p,bmunu)
+          call bmunu_ubaru_gamg(p,bmunu)
           print*,"bmunu(0) = ", bmunu(0,:,4)
           print*,"bmunu(1) = ", bmunu(1,:,4)
           print*,"bmunu(2) = ", bmunu(2,:,4)

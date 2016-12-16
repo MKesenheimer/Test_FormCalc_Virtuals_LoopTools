@@ -2,10 +2,10 @@
       implicit none
 #include "PhysPars.h"
 #include "pwhg_math.h"
-      double precision p(0:3,nlegs)
+      double precision p(0:3,4)
       double precision al(0:3), be(0:3)
       integer alind, beind
-      double precision ampmunu(0:3,0:3,nlegs)
+      double precision ampmunu(0:3,0:3,4)
       double precision k1(0:3)
       double precision k2(0:3)
       double precision k3(0:3)

@@ -2,10 +2,10 @@
 	implicit none
 #include "PhysPars.h"
 #include "pwhg_math.h"
-	double precision p(0:3,nlegs)
+	double precision p(0:3,4)
 	double precision al(0:3), be(0:3)
 	integer alind, beind
-	double precision ampmunu(0:3,0:3,nlegs)
+	double precision ampmunu(0:3,0:3,4)
 	double precision k1(0:3)
 	double precision k2(0:3)
 	double precision k3(0:3)
@@ -40,15 +40,15 @@
 	be(:) = 0D0
 	be(beind) = 1D0
 
-      <* Pair18 *> = <* Pair18$851 *>
-      <* Pair16 *> = <* Pair16$852 *>
-      <* Pair17 *> = <* Pair17$853 *>
-      <* Pair14 *> = <* Pair14$854 *>
-      <* Pair15 *> = <* Pair15$855 *>
-      <* Abb60 *> = <* Abb60$856 *>
-      <* Abb61 *> = <* Abb61$857 *>
-      <* Sub2 *> = <* Sub2$858 *>
-      <* Sub3 *> = <* Sub3$859 *>
+      <* Pair18 *> = <* Pair18$873 *>
+      <* Pair16 *> = <* Pair16$874 *>
+      <* Pair17 *> = <* Pair17$875 *>
+      <* Pair14 *> = <* Pair14$876 *>
+      <* Pair15 *> = <* Pair15$877 *>
+      <* Abb60 *> = <* Abb60$878 *>
+      <* Abb61 *> = <* Abb61$879 *>
+      <* Sub2 *> = <* Sub2$880 *>
+      <* Sub3 *> = <* Sub3$881 *>
 
 	ampmunu(alind,beind,4) = <* FormAddAmpMuNuOut *>
 

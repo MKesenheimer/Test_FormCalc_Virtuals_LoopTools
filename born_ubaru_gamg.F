@@ -1,15 +1,15 @@
-      subroutine born_ubaru_gamg(p,b)
+      subroutine born_ubaru_gamg(p,amp)
       implicit none
 #include "PhysPars.h"
 #include "pwhg_math.h"
-#include "nlegborn.h"
-      double precision p(0:3,nlegborn)
-      double precision al(0:3), be(0:3)
-      double precision k1(0:3), k2(0:3), k3(0:3), k4(0:3), k5(0:3)
-      double precision b
-      double precision S, T, U, S34, T14, T24
-      integer Sfe6, Sfe6c
-      integer alind, beind
+      double precision p(0:3,4)
+      double precision amp
+      double precision k1(0:3)
+      double precision k2(0:3)
+      double precision k3(0:3)
+      double precision k4(0:3)
+      double precision S, T, U
+      integer Sfe6,Sfe6c
 
       double precision Epsilon, DotP, Den
       double precision momsq, momsum2sq, momsum3sq
@@ -17,7 +17,7 @@
       external momsq, momsum2sq, momsum3sq
 
 
-      b = 0D0
+      amp = 0D0
 
       k1(:) = p(:,1)
       k2(:) = p(:,2)
@@ -28,7 +28,7 @@
       U   = momsum2sq(k2(:),-k3(:))
 
 
-      b = -(Alfa*Alfas*Pi**2*((-512*S**2*Den(T,MU2)*Den(U,MU2))/9. + 
+      amp =         -(Alfa*Alfas*Pi**2*((-512*S**2*Den(T,MU2)*Den(U,MU2))/9. + 
      -      (512*(T**2*Den(T,MU2)**2 + U**2*Den(U,MU2)**2))/9.))
 
       end

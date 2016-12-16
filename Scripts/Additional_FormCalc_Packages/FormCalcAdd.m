@@ -440,7 +440,7 @@ WriteMatrixElement[name_String,amp_,abbr_List,indices_List,functions_List,nlegs_
   WriteStringn[strm, "implicit none"];
   WriteStringn[strm, "#include \"PhysPars.h\""];
   WriteStringn[strm, "#include \"pwhg_math.h\""];
-  WriteStringn[strm, "double precision p(0:3,nlegs)"];
+  WriteStringn[strm, "double precision p(0:3,"<>ToString[nlegs]<>")"];
   WriteStringn[strm, "double precision amp"];
   For[i=1,i<=nlegs,i++,
     WriteStringn[strm, "double precision k"<>ToString[i]<>"(0:3)"];
@@ -571,10 +571,10 @@ WriteSpinCorrelatedMatrixElement[name_String,ampmunu_,abbr_List,indices_List,fun
   WriteStringn[strm, "implicit none"];
   WriteStringn[strm, "#include \"PhysPars.h\""];
   WriteStringn[strm, "#include \"pwhg_math.h\""];
-  WriteStringn[strm, "double precision p(0:3,nlegs)"];
+  WriteStringn[strm, "double precision p(0:3,"<>ToString[nlegs]<>")"];
   WriteStringn[strm, "double precision al(0:3), be(0:3)"];
   WriteStringn[strm, "integer alind, beind"];
-  WriteStringn[strm, "double precision ampmunu(0:3,0:3,nlegs)"];
+  WriteStringn[strm, "double precision ampmunu(0:3,0:3,"<>ToString[nlegs]<>")"];
   For[i=1,i<=nlegs,i++,
     WriteStringn[strm, "double precision k"<>ToString[i]<>"(0:3)"];
   ];
