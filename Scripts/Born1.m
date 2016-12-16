@@ -10,7 +10,9 @@ last modified December 2016
 Clear["Global`*"]
 SetDirectory[NotebookDirectory[]];
 << FeynArts`
+<< FeynArtsAdd`
 << FormCalc`
+<< FormCalcAdd`
 ClearProcess[]
 <<"!rm *.frm"
 

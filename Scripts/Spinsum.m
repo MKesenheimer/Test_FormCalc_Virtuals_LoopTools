@@ -10,8 +10,9 @@ last modified July 2016
 Clear["Global`*"]
 SetDirectory[NotebookDirectory[]];
 << FeynArts`
+<< FeynArtsAdd`
 << FormCalc`
-<< SpinCorr`
+<< FormCalcAdd`
 ClearProcess[]
 <<"!rm *.frm"
 <<"!rm *.wdx"
@@ -19,28 +20,6 @@ ClearProcess[]
 <<"!rm *.f"
 
 time1 = SessionTime[]
-
-
-(*functions*)
-(*break line automatically*)
-WriteStringn[strm_,str_]:=WriteString[strm,str<>"\n"]
-(*Generate unique variable names (even for functions)*)
-UniqueName[var_Symbol]:=Unique[var]
-UniqueName[var_[arg__]]:=Unique[var][arg]
-(*assign values to a list of names*)
-AssignValues[ulist_List,val_List]:=MapThread[Set[#1,#2]&,{ulist,val}]//Quiet;
-(*Extract only the elements of list with given arguments*)
-CheckArgs[expr_]:=False
-CheckArgs[expr_,arg__]:=Map[!FreeQ[GetArgument[expr],#]&,Permutations[{arg}]]/.List->Or
-FreeArgs[expr_,arg__]:=Map[!CheckArgs[expr,#/.List->Sequence]&,Subsets[{arg}]]/.List->And
-ExprWithArgs[expr_,arg__]:=Sequence[]
-ExprWithArgs[expr_,arg__]:=expr/;CheckArgs[expr,arg]
-ExprWithoutArgs[expr_,arg__]:=Sequence[]
-ExprWithoutArgs[expr_,arg__]:=expr/;FreeArgs[expr,arg]
-GetElementsWithArgs[list_List,arg__]:=Map[ExprWithArgs[#,arg]&,list]
-GetElementsWithoutArgs[list_List,arg__]:=Map[ExprWithoutArgs[#,arg]&,list]
-(*Subset of n elements with overhang*)
-Subsetn[list_List,n_Integer]:=Block[{subs},Join[subs=Partition[list,n],{Complement[list,Flatten[subs]]}]]/.{}->Sequence[]
 
 
 (*You can now load the script with the command $ MathKernel -script spinsum.m "ubar" "u" "ubar" "u"*)
@@ -217,127 +196,7 @@ indices={Sfe6->2,Sfe6c->2};
 functions={Pair->DotP,k[1]->k1,k[2]->k2,k[3]->k3,k[4]->k4,k[5]->k5, IndexDelta->Kronecker,Eps->Epsilon,Conjugate[WSf[i_,j_,k_]]:>WSf[i,j,k],Conjugate[WZ]->WZ, I->ii,-I->-ii};
 
 
-(*generate fortran code*)
-strm = OpenFortran["bornmunu_"<>name<>".mf"];
-WriteStringn[strm, "subroutine bornmunu_"<>name<>"(p,bmunu)"];
-WriteStringn[strm, "implicit none"]
-WriteStringn[strm, "#include \"PhysPars.h\"\n#include \"pwhg_math.h\""]
-WriteStringn[strm, "#include \"nlegborn.h\""]
-WriteStringn[strm, "double precision p(0:3,nlegborn)"]
-WriteStringn[strm, "double precision al(0:3), be(0:3)"]
-WriteStringn[strm, "double precision k1(0:3), k2(0:3), k3(0:3), k4(0:3), k5(0:3)"]
-WriteStringn[strm, "double precision bmunu(0:3,0:3,nlegborn)"]
-WriteStringn[strm, "double precision S, T, U, S34, T14, T24"]
-WriteStringn[strm, "integer Sfe6, Sfe6c"]
-WriteStringn[strm, "integer alind, beind"]
-
-(*define functions*)
-WriteStringn[strm, ""]
-WriteStringn[strm, "double precision Epsilon, DotP, Den"]
-WriteStringn[strm, "double precision momsq, momsum2sq, momsum3sq"]
-WriteStringn[strm, "external Epsilon, DotP, Den"]
-WriteStringn[strm, "external momsq, momsum2sq, momsum3sq"]
-
-(*define local variables*)
-WriteStringn[strm, ""]
-defvars=Map[Join[#,{TAG}]&,Subsetn[GetVariables[optimizedRules[GluonLegs[[1]]]]/.indices,4]];
-For[i=1,i<=Length[defvars],i++,
-defvarsout[i]=defvars[[i]];
-WriteStringn[strm, "double precision <* defvarsout["<>ToString[i]<>"] *>"];
-]
-
-(*reset*)
-WriteStringn[strm, ""]
-WriteStringn[strm, "bmunu(:,:,:) = 0D0"]
-
-(*Momenta and Mandelstams*)
-WriteStringn[strm, ""]
-WriteStringn[strm, "k1(:) = p(:,1)"]
-WriteStringn[strm, "k2(:) = p(:,2)"]
-WriteStringn[strm, "k3(:) = p(:,3)"]
-WriteStringn[strm, "k4(:) = p(:,4)"]
-WriteStringn[strm, "S   = momsum2sq(k1(:), k2(:))"]
-WriteStringn[strm, "T   = momsum2sq(k1(:),-k3(:))"]
-WriteStringn[strm, "U   = momsum2sq(k2(:),-k3(:))"]
-
-(*loop over al and be*)
-WriteStringn[strm, ""]
-WriteStringn[strm, "do alind=0,3"]
-WriteStringn[strm, "do beind=0,3"]
-WriteStringn[strm, ""]
-WriteStringn[strm, "al(:) = 0D0"]
-WriteStringn[strm, "al(alind) = 1D0"]
-WriteStringn[strm, "be(:) = 0D0"]
-WriteStringn[strm, "be(beind) = 1D0"]
-
-(*calculate abbreviations*)
-WriteStringn[strm, ""]
-vars=GetVariables[optimizedRules[GluonLegs[[1]]]];
-ulist=Map[UniqueName,vars];
-varsSfe6=GetElementsWithArgs[vars,Sfe6];
-ulistSfe6=GetElementsWithArgs[ulist,Sfe6];
-varsSfe6c=GetElementsWithArgs[vars,Sfe6c];
-ulistSfe6c=GetElementsWithArgs[ulist,Sfe6c];
-varsSfe6Sfe6c=GetElementsWithArgs[vars,Sfe6,Sfe6c];
-ulistSfe6Sfe6c=GetElementsWithArgs[ulist,Sfe6,Sfe6c];
-vars0=GetElementsWithoutArgs[vars,Sfe6c,Sfe6];
-ulist0=GetElementsWithoutArgs[ulist,Sfe6c,Sfe6];
-MapThread[WriteStringn[strm, "      <* "<>ToString[#1]<>" *> = <* "<>ToString[#2]<>" *>" ]&,{vars0,ulist0}];
-
-If[Length[varsSfe6]!=0,
-  WriteStringn[strm, ""];
-  WriteStringn[strm, "do Sfe6=1,2"];
-  MapThread[WriteStringn[strm, "      <* "<>ToString[#1]<>" *> = <* "<>ToString[#2]<>" *>" ]&,{varsSfe6,ulistSfe6}];
-  WriteStringn[strm, "enddo"];
-]
-
-If[Length[varsSfe6c]!=0,
-  WriteStringn[strm, ""];
-  WriteStringn[strm, "do Sfe6c=1,2"];
-  MapThread[WriteStringn[strm, "      <* "<>ToString[#1]<>" *> = <* "<>ToString[#2]<>" *>" ]&,{varsSfe6c,ulistSfe6c}];
-  WriteStringn[strm, "enddo"];
-]
-
-If[Length[varsSfe6Sfe6c]!=0,
-  WriteStringn[strm, ""];
-  WriteStringn[strm, "do Sfe6=1,2"];
-  WriteStringn[strm, "do Sfe6c=1,2"];
-  MapThread[WriteStringn[strm, "      <* "<>ToString[#1]<>" *> = <* "<>ToString[#2]<>" *>" ]&,{varsSfe6Sfe6c,ulistSfe6Sfe6c}];
-  WriteStringn[strm, "enddo"];
-  WriteStringn[strm, "enddo"];
-]
-
-(*write Matrix element*)
-WriteStringn[strm, ""]
-WriteStringn[strm, "bmunu(alind,beind,"<>ToString[GluonLegs[[1]]]<>") = <* spinsumout *>"];
-
-(*end loop over al and be*)
-WriteStringn[strm, ""]
-WriteStringn[strm, "enddo"]
-WriteStringn[strm, "enddo"]
-
-WriteStringn[strm, ""]
-WriteStringn[strm, "end"];
-Close[strm];
-
-(*substitute wildcards*)
-AssignValues[ulist,GetValues[optimizedRules[GluonLegs[[1]]]]/.functions];
-spinsumout=spinsum[GluonLegs[[1]]]/.functions;
-Splice["bornmunu_"<>name<>".mf", PageWidth -> 72];
-(*FileTemplateApply[FileTemplate["bornmunu_"<>name<>".mf"],"bornmunu_"<>name<>".f"]*)
-
-
-(*finalize the output, remove the Function "List(...)" that is wrapped around the variables*)
-strm = OpenFortran["finalize.sh"];
-WriteStringn[strm, "#!/bin/bash"];
-WriteStringn[strm, "gsed -i -e \"s/List\(//g\" "<>"bornmunu_"<>name<>".f"];
-WriteStringn[strm, "gsed -i -e \"s/,TAG\)//g\" "<>"bornmunu_"<>name<>".f"];
-WriteStringn[strm, "gsed -i -e 's/\\t/      /g' "<>"bornmunu_"<>name<>".f"];
-WriteStringn[strm, "mv bornmunu_"<>name<>".f " <>"bornmunu_"<>name<>".F"];
-Close[strm];
-<<"!chmod +x finalize.sh"
-<<"!./finalize.sh"
-<<"!rm *.f-e"
+WriteSpinCorrelatedMatrixElement["bmunu_"<>name,spinsum[4],optimizedRules[4],indices,functions,4,4]
 
 
 Print["time used: ", SessionTime[] - time1]

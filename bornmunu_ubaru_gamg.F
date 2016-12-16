@@ -48,7 +48,7 @@
       Sub2 = 4*Pair16*Pair17*T - Pair18*T**2
       Sub3 = 4*Pair14*Pair15*U - Pair18*U**2
 
-      bmunu(alind,beind,4) =         (-128*Alfa*Alfas*Pi**2*
+      bmunu(alind,beind,4) = (-128*Alfa*Alfas*Pi**2*
      -    (Sub2*Den(T,MU2)**2 + 
      -      (4*Abb61 + Pair18*S**2)*Den(T,MU2)*Den(U,MU2) + 
      -      Sub3*Den(U,MU2)**2))/9.

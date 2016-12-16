@@ -28,7 +28,7 @@
       U   = momsum2sq(k2(:),-k3(:))
 
 
-      b =         -(Alfa*Alfas*Pi**2*((-512*S**2*Den(T,MU2)*Den(U,MU2))/9. + 
+      b = -(Alfa*Alfas*Pi**2*((-512*S**2*Den(T,MU2)*Den(U,MU2))/9. + 
      -      (512*(T**2*Den(T,MU2)**2 + U**2*Den(U,MU2)**2))/9.))
 
       end
