@@ -101,7 +101,7 @@ c############### subroutine getAmps ####################################
         ! process parameters
         ! unpolarized fermion: B01010  FC8Guid.pdf p.49
         ! unpolarized gluon: B01110
-        helicities = 338250
+        helicities = 338382
         flags = 2 ! = 010d, Bit0: set mass, Bit1: reset, Bit2: loop
         symfac = 4
         ! set the formCalc vectors
