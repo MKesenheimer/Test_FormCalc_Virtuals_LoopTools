@@ -248,7 +248,7 @@ Print["vert = "];
 Print[vert];
 
 
-(*Print["Boxes"]
+Print["Boxes"]
 
 top = CreateTopologies[1, 2 -> 3, BoxesOnly];
 ins = InsertFields[top, process];
@@ -277,10 +277,10 @@ box = CalcFeynAmp[CreateFeynAmp[ins]];
 box = box//.{Alfa2->0};
 
 Print["box = "];
-Print[box];*)
+Print[box];
 
 
-(*Print["Pentagons"]
+Print["Pentagons"]
 
 top = CreateTopologies[1, 2 -> 3, PentagonsOnly];
 ins = InsertFields[top, process];
@@ -292,7 +292,7 @@ pent = CalcFeynAmp[CreateFeynAmp[ins]];
 pent = pent//.{Alfa2->0};
 
 Print["pent = "];
-Print[pent];*)
+Print[pent];
 
 
 (* Write files *)
@@ -328,7 +328,7 @@ subexpr = Table[If[(CountArgs[SubstitutionHead[subexpr[[i]]]]/.{}->Sequence[])[[
 subexpr = subexpr//.subexpr6;
 
 dir = SetupCodeDir[name <> "_virt", Drivers -> name <> "_drivers"];
-WriteSquaredME[born, {self,vert(*,box,pent*)}, col, abbr, subexpr, dir];
+WriteSquaredME[born, {self,vert,box,pent}, col, abbr, subexpr, dir];
 
 
 (*Calculate RenConsts*)
@@ -339,8 +339,6 @@ InsertFieldsHook[tops_,f1_->f2_]:=InsertFields[tops,f1->f2,ExcludeFieldPoints ->
     FieldPoint[_][V[n_/;n<5], _, _, _],
     FieldPoint[_][F[11|12], _, _],(*Exclude Neutralino+Chargino*)
     FieldPoint[_][F[11|12], _, _, _]
-    (*FieldPoint[_][_. U[1|2|3|4|5,___], _, _] (*Exclude Ghosts*)*)
-    (*FieldPoint[_][V[5,_], V[5,_], V[5,_], V[5,_]]*)
 }];
 
 ren = CalcRenConst[amps];
@@ -352,7 +350,6 @@ Print[dZgg3s];
 renlist = Join[{dZgg3->dZgg3s},Level[ren,1]];
 ren = RenConstList[RenConst][renlist//.{List->Sequence}];
 
-(*Export["RenConsts.wdx",ren,"WDX"];*)
 ren = ren/.{RenConst[0]->0};
 ren = ren//.{Alfa->0, Alfa2->0}; (*consider only strong corrections*)
 
