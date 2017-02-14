@@ -15,8 +15,10 @@
 #define ec0(i) (3+nvec0*(i-1)-Hel0(i))
 #define Spinor0(i,af,d) (af*2+d+7+nvec0*(i-1)+Hel0(i))
 
-#define Finite ishft(1,-epsi)
-#define Epsi(i) i+epsi
+!#define Finite ishft(1,-epsi)
+#define Finite ishft(1,-getepsi())
+!#define Epsi(i) i+epsi
+#define Epsi(i) (i+getepsi())
 
 #define NaN(n) n*bogus
 

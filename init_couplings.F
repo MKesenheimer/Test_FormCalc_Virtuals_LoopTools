@@ -168,10 +168,10 @@ c#define EPSMASS 1D-30
         par_MD = EPSMASS ! formcalc code already neglects all light 
         par_MS = EPSMASS ! masses analytically but leaves some masses in propagators
 #else
-        par_MU = 0D0
-        par_MC = 0D0
-        par_MD = 0D0
-        par_MS = 0D0
+        par_MU = 2.3D-3
+        par_MC = 1.275D0
+        par_MD = 4.8D-3
+        par_MS = 95D0
 #endif
 
 c b quark mass
@@ -180,7 +180,7 @@ c b quark mass
 #ifdef EPSMASS
         par_MB = EPSMASS
 #else
-        par_MB = 0D0
+        par_MB = 4.180D0
 #endif
 #else
         ! read mass paramater from slha file
@@ -190,17 +190,23 @@ c b quark mass
         ! top mass
         !par_MT  = dreal(Mass_Mf(3,3))
         par_MT = dreal(SMInputs_Mt)
+        
+#ifdef DEBUGQ
+        print*,par_MU,par_MC,par_MD,par_MS,par_MT,par_MB
+        stop
+#endif
 
 c particle widths from SLHA-file
 c NOTE: FormCalc does not use squark widths in the current software 
 c version.
+#define NEGLECT_SWIDTH
         do channel = 1, nchannels
           nparticles = partid(0,channel)
           if(nparticles .eq. 1) then
             select case(partid(1,channel))
+#ifndef NEGLECT_SWIDTH
               case (1000021) ! gluino
                 par_WGl = width(channel)
-#ifndef NEGLECT_SWIDTH
               print*, "warning: FormCalc does not use squark-widths."  
               case (1000001) ! sdown_L
                 par_WSf(1,4,1) = width(channel)
@@ -230,7 +236,8 @@ c version.
             endselect
           endif
         enddo
-#ifdef NEGLECT_SWIDTH
+#ifdef NEGLECT_SWIDTHQ
+        par_WGl = 0D0
         do i=1,2 ! sfermion index s
           do j=3,4 ! type (u or d)
             do k=1,3 ! generation
@@ -419,10 +426,8 @@ c MadGraphs couplings.f as well.
         SW2 = 1 - CW2
         SW  = dsqrt(SW2)
         
-        ! sin(beta), cos(beta), tan(beta)
-        ! note: the matrix elements do not depend on TB
-        !TB = HMix_TB
-        TB = MinPar_TB
+        ! Higgs parameters 
+        TB = dble(MinPar_TB)
         CB = dabs(1.D0/dsqrt(1+TB**2))
         SB = dabs(TB*CB)
         SB2 = SB**2
@@ -431,11 +436,35 @@ c MadGraphs couplings.f as well.
         S2B = 2*TB*CB2
         C2B = (CB - SB)*(CB + SB)
         
+        TA = 0.1D0 !MinPar_TA, TODO!
+        CA = dabs(1.D0/dsqrt(1+TA**2))
+        SA = dabs(TA*CA)
+        SA2 = SA**2
+        CA2 = CA**2
+        TA2 = TA**2
+        S2A = 2*TA*CA2
+        C2A = (CA - SA)*(CA + SA)
+        
+        SAB = SA*CB + CA*SB
+        CAB = CA*CB - SA*SB
+        SBA = SB*CA - CB*SA
+        SBA2 = SBA**2
+        CBA = CB*CA + SB*SA
+        CBA2 = CBA**2
+        
+        Mh0 = dble(Mass_Mh0)
+        MHH = dble(Mass_MHH)
+        MA0 = dble(Mass_MA0)
+        MHp = dble(Mass_MHp)
+        Mh02 = Mh0**2
+        MHH2 = MHH**2 
+        MA02 = MA0**2
+        MHp2 = MHp**2
+        
         ! Gaugino mass parameter
         Mino3 = dcmplx(Mgl)
         
         ! trilinear couplings
-        ! note: the matrix elements do not depend on Af
         do i=2,4 ! type 
           do j=1,3 ! generation
             do k=1,3 ! generation
@@ -445,18 +474,113 @@ c MadGraphs couplings.f as well.
         enddo
         
         ! mass term mixing the 2 Higgs doublets
-        ! note: the matrix elements do not depend on MUE
         MUE  = dcmplx(HMix_MUE)
 
         ! couplings
         ! set Formcalc couplings equal to the ones provided by POWHEG
         Alfa    = par_alpha
         Alfa2   = Alfa**2
-        AlfaS   = SMInputs_AlfasMZ ! dummy value, gets overwritten by set_ebe_couplings
+        AlfaS   = dble(SMInputs_AlfasMZ) ! dummy value, gets overwritten by set_ebe_couplings
         AlfaS2  = AlfaS**2
         AlfaMZ  = par_alphaMZ
-        AlfaSMZ = SMInputs_AlfasMZ
+        AlfaSMZ = dble(SMInputs_AlfasMZ)
         EL = dsqrt(4*pi*Alfa)
         GS = dsqrt(4*pi*AlfaS)
+
+        ! conjugate complex parameters
+        do i=1,2
+          do j=1,2
+            do k=1,4
+              do l=1,3
+                USfC(i,j,k,l) = dconjg(USf(i,j,k,l))
+              enddo
+            enddo
+          enddo
+        enddo
+
+        do i=1,2
+          do j=1,2
+            VChaC(i,j) = dconjg(VCha(i,j))
+            UChaC(i,j) = dconjg(UCha(i,j))
+          enddo
+        enddo
+
+        do i=1,4
+          do j=1,4
+            ZNeuC(i,j) = dconjg(ZNeu(i,j))
+          enddo
+        enddo
+
+        do i=2,4
+          do j=1,3
+            do k=1,3
+              AfC(i,j,k) = dconjg(Af(i,j,k))
+            enddo
+          enddo
+        enddo
+
+        Mino3C = dconjg(Mino3)
+        MUEC = dconjg(MUE)
+        
+        ! complexified parameters for arguments of the loop integrals
+        ! are used only for internal propagators
+        MZC = dcmplx(MZ)
+        MZ2C = dcmplx(MZ2)
+        MZ2W = MZ2C - ii*MZ*WZ
+        MWC = dcmplx(MW)
+        MW2C = dcmplx(MW2)
+        MW2W = MW2C - ii*MW*WW
+        MUC = dcmplx(MU)
+        MU2C = dcmplx(MU2)
+        MCC = dcmplx(MC)
+        MC2C = dcmplx(MC2)
+        MTC = dcmplx(MT)
+        MT2C = dcmplx(MT2)
+        MDC = dcmplx(MD)
+        MD2C = dcmplx(MD2)
+        MSC = dcmplx(MS)
+        MS2C = dcmplx(MS2)
+        MBC = dcmplx(MB)
+        MB2C = dcmplx(MB2)
+
+        do i=1,4
+          do j=1,3
+            MfC(i,j) = dcmplx(Mf(i,j))
+            Mf2C(i,j) = dcmplx(Mf2(i,j))
+          enddo
+        enddo
+ 
+        do i=1,4
+          MNeuC(i) = dcmplx(MNeu(i))
+          MNeu2C(i) = dcmplx(MNeu2(i))
+        enddo
+ 
+        do i=1,2
+          MChaC(i) = dcmplx(MCha(i))
+          MCha2C(i) = dcmplx(MCha2(i))
+        enddo
+ 
+        do i=1,2
+          do j=1,4
+            do k=1,3
+              MSfC(i,j,k) = dcmplx(MSf(i,j,k))
+              MSf2C(i,j,k) = dcmplx(MSf2(i,j,k))
+              MSf2W(i,j,k) = MSf2C(i,j,k) - ii*MSf(i,j,k)*WSf(i,j,k)
+            enddo
+          enddo
+        enddo
+ 
+        MGlC = dcmplx(MGlC)
+        MGl2C = dcmplx(MGl2)
+        MGl2W = MGl2C - ii*MGl*WGl
+ 
+        Mh0C = dcmplx(Mh0)
+        MHHC = dcmplx(MHH)
+        MA0C = dcmplx(MA0)
+        MHpC = dcmplx(MHp)
+        Mh02C = dcmplx(Mh02)
+        MHH2C = dcmplx(MHH2)
+        MA02C = dcmplx(MA02)
+        MHp2C = dcmplx(MHp2)
       end
 c############### end subroutine set_formcalc_params ####################

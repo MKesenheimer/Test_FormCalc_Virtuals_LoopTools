@@ -18,7 +18,7 @@ c#include "extra.h"
 * declarations for every subroutine
 
 #include "const.h"
-c#include "looptools.h"
+#include "looptools.h"
 
 #endif
 
@@ -26,6 +26,6 @@ c#include "looptools.h"
 #include "util.h"
 
 #ifdef SQUAREDME
-c#include "RenConst.h"
+#include "RenConst.h"
 #endif
 

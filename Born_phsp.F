@@ -64,7 +64,7 @@ c and the Jacobi factor for the phase space volume
         call set_process(nlegborn, flav, mass)
 
         ! lower bound on the mass of the final state 2->3 process
-        minmass = mass(3) + mass(4)
+        minmass = mass(3) + mass(4) + mass(5)
         
         ! calculate the parton momentum fractions x1, x2
         ! the squared CM energy of the Born process sborn
@@ -84,19 +84,29 @@ c and the Jacobi factor for the phase space volume
         p_cms(3,2) = -p_cms(0,1)
 
         p12(:) = p_cms(:,1) + p_cms(:,2)
-        sijmin = (mass(i)+mass(j))**2
+        sijmin = (mass(3)+mass(5))**2
         
         ! generate four-momenta in the cms frame
         ! for the particles produced in the Born process,
         ! calculates the Jacobi factor for the phase space volume
         ! we don't want to integrate over phi, so we provide 0 for xphi
         ! (see phi1_2.f)
-        call R2phsp(xborn(3),0D0,mass(3),mass(4),p12,p_cms(:,3),
-     &              p_cms(:,4),jac)
+        call R2phsp_s2(0,xborn(3),xborn(4),0D0,sijmin,mass(4),
+     &                 0D0,0D0,p12(:),p_cms(:,4),pij(:),jac)
         jacborn = jacborn*jac
+        call R2phsp(xborn(5),xborn(6),mass(3),mass(5),pij(:),
+     &              p_cms(:,3),p_cms(:,5),jac)
+        jacborn = jacborn*jac        
 
-        ! physical phase space jacobian ((2*Pi)**(3n-4), n=2)
-        jacborn = jacborn/(2D0*pi)**2
+        ! generation cut for soft jets
+        ! (jet has always index = 5)
+        ptjet = dsqrt(p_cms(1,5)**2+p_cms(2,5)**2)
+        if(ptjet.lt.10D0) then
+          jacborn = 0D0
+        endif
+        
+        ! physical phase space jacobian ((2*Pi)**(3n-4), n=3)
+        jacborn = jacborn/(2D0*pi)**5
         
         ! velocity of subsystem in laboratory frame
         beta = (x1-x2)/(x1+x2)

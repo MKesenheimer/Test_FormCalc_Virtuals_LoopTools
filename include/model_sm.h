@@ -5,18 +5,26 @@ c############### model_sm.h ############################################
 * last modified 23 Dec 14 th by MK
 
         !Z mass, W mass, cos(theta_w), sin(theta_w)
-        RealType MZ, MZ2, MW, MW2, CW, CW2, SW, SW2
-        RealType WZ, WW
+        double precision MZ, MZ2, MW, MW2, CW, CW2, SW, SW2
+        double precision WZ, WW
         ! Fermi constant, fine structure, fine structure constant at MZ, strong coupling
-        RealType GF, Alfa, Alfa2, AlfaMZ, AlfasMZ, Alfas, Alfas2
+        double precision GF, Alfa, Alfa2, AlfaMZ, AlfasMZ, Alfas, Alfas2
         ! Quark masses
-        RealType MU, MU2, MC, MC2, MT, MT2
-        RealType MD, MD2, MS, MS2, MB, MB2
-        RealType Mf(4,3),Mf2(4,3)
+        double precision MU, MU2, MC, MC2, MT, MT2
+        double precision MD, MD2, MS, MS2, MB, MB2
+        double precision Mf(4,3), Mf2(4,3)
         ! CKM matrix (here: identity)
-        RealType CKM(3,3)
+        double precision CKM(3,3)
         ! strong and e.m. coupling constants
-        RealType EL, GS
+        double precision EL, GS
+
+        ! complex parameters for loop integrals
+        double complex MZC, MZ2C, MWC, MW2C
+        double complex MUC, MU2C, MCC, MC2C, MTC, MT2C
+        double complex MDC, MD2C, MSC, MS2C, MBC, MB2C
+        double complex MfC(4,3), Mf2C(4,3)
+        ! complex masses with widths included 
+        double complex MZ2W, MW2W
 
         common /smpara/ MZ, MZ2, MW, MW2, CW, CW2, SW, SW2
         common /smpara/ WZ, WW
@@ -25,5 +33,10 @@ c############### model_sm.h ############################################
         common /smpara/ MD, MD2, MS, MS2, MB, MB2
         common /smpara/ Mf,Mf2
         common /smpara/ CKM, EL, GS
+        common /smpara/ MZC, MZ2C, MWC, MW2C
+        common /smpara/ MUC, MU2C, MCC, MC2C, MTC, MT2C 
+        common /smpara/ MDC, MD2C, MSC, MS2C, MBC, MB2C
+        common /smpara/ MfC, Mf2C
+        common /smpara/ MZ2W, MW2W
 
 c############### end model_sm.h ########################################

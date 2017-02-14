@@ -5,51 +5,45 @@ c############### Main.F ################################################
         double precision p(0:3,nlegborn)
         double precision xborn(ndiminteg-3)
         integer flav(nlegborn), i
-        double precision amp1, amp2
-        double precision bmunu(0:3,0:3,nlegborn)
+        double precision amp(2), ampUV(2)
         
         ! generate random number
         call srand(1234)
         
         ! process parameters
-        flav(1) = -2
-        flav(2) = 2
-        flav(3) = -2
-        flav(4) = 2
+        flav(1) = -1
+        flav(2) = 1
+        flav(3) = 1000022
+        flav(4) = 1000023
+        flav(5) = 0
         
         call init_couplings
+        call ltini
         
-        do i=1,5
+        do i=1,15
           ! choose a point
           xborn(1) = rand() ! x1
           xborn(2) = rand() ! x2 
           xborn(3) = rand() ! theta
+          xborn(4) = rand()
+          xborn(5) = rand()
+          xborn(6) = rand()
         
           call born_phsp(xborn,flav,p)
         
-#if DEBUG >= 1
+#ifdef DEBUG
           print*
           print*,"p(:,:) = "
           print*,p(:,1)
           print*,p(:,2)
           print*,p(:,3)
           print*,p(:,4)
-          print*
+          print*,p(:,5)
+          print*,"pt(5) = ",dsqrt(p(1,5)**2+p(2,5)**2)
 #endif
-          call formCalcAmp(p,flav,amp1)
-        
-          call born_ubaru_gamg(p,amp2)
-          
-          print*
-          print*,"born = ", amp1, amp2, amp1/amp2
-          
-          ! test the spin correlated amplitude
-          call bmunu_ubaru_gamg(p,bmunu)
-          print*,"bmunu(0) = ", bmunu(0,:,4)
-          print*,"bmunu(1) = ", bmunu(1,:,4)
-          print*,"bmunu(2) = ", bmunu(2,:,4)
-          print*,"bmunu(3) = ", bmunu(3,:,4)
-          print*,"gmunu*bmunu = ",bmunu(0,0,4)-bmunu(1,1,4)-bmunu(2,2,4)-bmunu(3,3,4)
+          call formCalcAmp(p,flav,amp, ampUV)
+          print*,"born, virt   = ", amp
+          print*,"born, virtUV = ", ampUV
         enddo  
       end
 c############### end Main ##############################################
@@ -80,7 +74,7 @@ c calculate unit vectors and set the vectors for FormCalc
 c############### end subroutine formCalcVecSet #########################
 
 c############### subroutine getAmps ####################################
-      subroutine formCalcAmp(p,flav,amp)
+      subroutine formCalcAmp(p,flav,amp, ampUV)
         implicit none
 #include "nlegborn.h"
 #include "PhysPars.h"
@@ -90,27 +84,57 @@ c############### subroutine getAmps ####################################
         integer flags
         integer  flav(nlegborn)
         ! formcalc results
-        double precision fc_result(2), amp, symfac
+        double precision fc_result(2), amp(2), ampUV(2), symfac
+        double precision st_muren2
+        double precision momsum2sq
+        external momsum2sq
 
         ! reset
         fc_result(:) = 0D0
         amp = 0D0
         
         call set_ebe_couplings
+        st_muren2 = momsum2sq(p(:,1),p(:,2))
         
         ! process parameters
         ! unpolarized fermion: B01010  FC8Guid.pdf p.49
         ! unpolarized gluon: B01110
-        helicities = 338382
-        flags = 2 ! = 010d, Bit0: set mass, Bit1: reset, Bit2: loop
-        symfac = 4
+        helicities = 10824014
+        flags = 6
+        symfac = 36D0
         ! set the formCalc vectors
         call formCalcVecSet(nlegborn,p,flav)
         
-        !print*,MW,MZ,WZ,WW
-        !print*,Alfa,Alfa2,AlfaS,AlfaS2
+        call clearcache
+        call setlambda(0d0) ! Only finite part
+        call setuvdiv(0d0)  ! no 1/eps_UV terms
+        call setdelta(0d0)  ! set divergences to zero
+        call setmudim(st_muren2) ! renormalization scale
+        call setDivergence()
         
+        call RenConst
         call squaredME(fc_result,helicities,flags)
-        amp = fc_result(1)/symfac
+        amp(:) = fc_result(:)/symfac
+        
+        ! test for finiteness
+        call clearcache
+        call setuvdiv(1d0)
+        call setdelta(1D7)
+        call setDivergence()
+        
+        call RenConst
+        call squaredME(fc_result,helicities,flags)
+        ampUV(:) = fc_result(:)/symfac
       end
 c############### subroutine getAmps ####################################
+
+c############### subroutine setDivergence ##############################
+      subroutine setDivergence()
+        implicit none
+#include "types.h"
+#include "const.h"
+        double precision getdelta
+        external detdelta
+        Divergence = getdelta()
+      end
+c############### subroutine setDivergence ##############################

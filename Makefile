@@ -105,8 +105,10 @@ SUBWORKINGDIR = $(shell pwd)
 
 # important directories
 TOOLS = $(SUBWORKINGDIR)/Tools
+LT = $(TOOLS)/LoopTools-2.12
 
 # includes
+LTINCLUDE   = $(TOOLS)/LoopTools-2.12/src/include
 SINCLUDE    = $(SUBWORKINGDIR)/include
 SLHAINCLUDE = $(TOOLS)/SLHALib-2.2/src
 FINCLUDE    = $(SUBWORKINGDIR)/squaredme/include
@@ -128,8 +130,8 @@ AMPS := $(notdir $(AMPS_F:.F=.o))
 
 ### Main Files ###
 MAIN = Main.o funcprocess.o funcbasic.o VecSet.o phi1_2.o Born_phsp.o \
-	init_couplings.o boostrot.o born_ubaru_gamg.o \
-	bmunu_ubaru_gamg.o $(AMPS)
+	init_couplings.o boostrot.o \
+	$(AMPS)
 
 ########################################################################
 ## Libraries
@@ -150,11 +152,11 @@ LIBS += -lz
 
 ALL_FCFLAGS   = $(REC_FCFLAGS) $(OPT) $(WARN) $(CPP) $(DEBUG)
 ALL_FCFLAGS  += -I$(SLHAINCLUDE)
-ALL_FCFLAGS  += -I$(SINCLUDE) -I$(FINCLUDE)
+ALL_FCFLAGS  += -I$(SINCLUDE) -I$(FINCLUDE) -I$(LTINCLUDE)
 
 LINKER = $(CPPFLAGS) $(LIBS) $(LDFLAGS)
 
-HEADERS += $(wildcard *.h $(SLHAINCLUDE)/*.h)
+HEADERS += $(wildcard *.h $(SLHAINCLUDE)/*.h $(LTINCLUDE)/*.h)
 HEADERS += $(wildcard *.h $(SINCLUDE)/*.h)
 HEADERS += $(wildcard *.h $(FINCLUDE)/*.h)
      
