@@ -9419,10 +9419,8 @@ RenConst[dZbarGlR1] := dZGlL1
 
 RenConst[dZGG1] := UVDivergentPart[FieldRC[V[5]]]
 
-(* MK: The Ward identity for QED is not valid for QCD! *)
-(*RenConst[dZgs1] := -dZGG1/2*)
-(* correct version, where dZgg3 is the renormalization constant of the 3-gluon vertex, must be calculated by hand: *)
-RenConst[dZgs1] := - 3*dZGG1/2 + dZgg3
+RenConst[dZgs1] := dZGG1/2
+
 
 (* ---------------------------- Higgs sector ------------------------------- *)
 (* The dMHiggs1 follow hep-ph/0611326.                                       *)

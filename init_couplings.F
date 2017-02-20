@@ -30,7 +30,7 @@ c set the madgraph and formcalc couplings event by event
 #include "pwhg_math.h"
         ! FormCalc
         ! QCD coupling
-        AlfaS  = SMInputs_AlfasMZ
+        AlfaS  = 0.103832D0 !SMInputs_AlfasMZ
         AlfaS2 = AlfaS**2
         GS = dsqrt(AlfaS*4d0*pi)
         ! e.m. coupling
@@ -199,7 +199,7 @@ c b quark mass
 c particle widths from SLHA-file
 c NOTE: FormCalc does not use squark widths in the current software 
 c version.
-#define NEGLECT_SWIDTH
+c#define NEGLECT_SWIDTH
         do channel = 1, nchannels
           nparticles = partid(0,channel)
           if(nparticles .eq. 1) then
@@ -480,7 +480,7 @@ c MadGraphs couplings.f as well.
         ! set Formcalc couplings equal to the ones provided by POWHEG
         Alfa    = par_alpha
         Alfa2   = Alfa**2
-        AlfaS   = dble(SMInputs_AlfasMZ) ! dummy value, gets overwritten by set_ebe_couplings
+        AlfaS   = 0.103832D0 !dble(SMInputs_AlfasMZ) ! dummy value, gets overwritten by set_ebe_couplings
         AlfaS2  = AlfaS**2
         AlfaMZ  = par_alphaMZ
         AlfaSMZ = dble(SMInputs_AlfasMZ)
@@ -582,5 +582,12 @@ c MadGraphs couplings.f as well.
         MHH2C = dcmplx(MHH2)
         MA02C = dcmplx(MA02)
         MHp2C = dcmplx(MHp2)
+        
+#ifdef DEBUGQ
+        print*,"MZ2 = ", MZ2W
+        print*,"MW2 = ", MW2W
+        print*,"MGl2 = ", MGl2W
+        stop
+#endif
       end
 c############### end subroutine set_formcalc_params ####################

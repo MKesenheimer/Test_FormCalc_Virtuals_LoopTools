@@ -20,7 +20,7 @@ c############### Main.F ################################################
         call init_couplings
         call ltini
         
-        do i=1,15
+        do i=1,10
           ! choose a point
           xborn(1) = rand() ! x1
           xborn(2) = rand() ! x2 
@@ -30,6 +30,29 @@ c############### Main.F ################################################
           xborn(6) = rand()
         
           call born_phsp(xborn,flav,p)
+
+#ifdef DEBUGQ
+         p(           0 ,           1 ) =    1167.2865359086261D0     
+         p(           1 ,           1 ) =    0.0000000000000000D0     
+         p(           2 ,           1 ) =    0.0000000000000000D0     
+         p(           3 ,           1 ) =    1167.2865359086261D0     
+         p(           0 ,           2 ) =    1167.2865359086265D0     
+         p(           1 ,           2 ) =    0.0000000000000000D0     
+         p(           2 ,           2 ) =    0.0000000000000000D0     
+         p(           3 ,           2 ) =   -1167.2865359086263D0     
+         p(           0 ,           3 ) =    1043.8549275582102D0     
+         p(           1 ,           3 ) =    949.52489356424508D0     
+         p(           2 ,           3 ) =   -355.27513118550758D0     
+         p(           3 ,           3 ) =    229.05585528618940D0     
+         p(           0 ,           4 ) =    513.33103472045082D0     
+         p(           1 ,           4 ) =   -401.88454639807958D0     
+         p(           2 ,           4 ) =   -194.06414436545560D0     
+         p(           3 ,           4 ) =   -177.60560193762285D0     
+         p(           0 ,           5 ) =    777.38710953859197D0     
+         p(           1 ,           5 ) =   -547.64034716616550D0     
+         p(           2 ,           5 ) =    549.33927555096318D0     
+         p(           3 ,           5 ) =   -51.450253348566548D0 
+#endif
         
 #ifdef DEBUG
           print*
@@ -44,6 +67,7 @@ c############### Main.F ################################################
           call formCalcAmp(p,flav,amp, ampUV)
           print*,"born, virt   = ", amp
           print*,"born, virtUV = ", ampUV
+          !call printFormcalcModelParameters
         enddo  
       end
 c############### end Main ##############################################
@@ -94,7 +118,7 @@ c############### subroutine getAmps ####################################
         amp = 0D0
         
         call set_ebe_couplings
-        st_muren2 = momsum2sq(p(:,1),p(:,2))
+        st_muren2 = momsum2sq(p(:,1),p(:,2)) !77159.631508582082D0
         
         ! process parameters
         ! unpolarized fermion: B01010  FC8Guid.pdf p.49
@@ -114,7 +138,9 @@ c############### subroutine getAmps ####################################
         
         call RenConst
         call squaredME(fc_result,helicities,flags)
+        !call ddbar_n1n2g_squaredME(fc_result,helicities,flags)
         amp(:) = fc_result(:)/symfac
+        print*
         
         ! test for finiteness
         call clearcache
@@ -124,6 +150,7 @@ c############### subroutine getAmps ####################################
         
         call RenConst
         call squaredME(fc_result,helicities,flags)
+        !call ddbar_n1n2g_squaredME(fc_result,helicities,flags)
         ampUV(:) = fc_result(:)/symfac
       end
 c############### subroutine getAmps ####################################
