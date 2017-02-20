@@ -106,7 +106,7 @@ dZgs1y = 0;
 
 
 (*Options*)
-SetOptions[InsertFields, Model -> "MSSMCTPOWHEG", InsertionLevel->{Classes},
+SetOptions[InsertFields, Model -> "MSSMCTPOWHEG_dZgg3", InsertionLevel->{Classes},
            (*No Fermion-Higgs coupling*)
            Restrictions -> {NoLightFHCoupling},
            (*Exclude Top, Higgs, Neutrinos, massive Leptons, Sneutrinos, Sleptons*)
